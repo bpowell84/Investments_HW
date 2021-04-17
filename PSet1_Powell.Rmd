@@ -1,13 +1,199 @@
 ---
-title: "PSet1_Powell"
+title: "Homework 1"
 author: "Brandon Powell"
 date: "4/12/2021"
-output: html_document
+output: 
+  html_document:
+    toc: true 
+    toc_float: true
+    theme: yeti
+    highlight: haddock
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE, include = FALSE)
 library(tidyverse)
+library(kableExtra)
 ```
+
+# Problem 1
+Today you bought 100 shares of ABC Inc. at \$100 per share. A year from now ABC will pay a dividend of \$3 per share for sure. The price of ABC a year from now is uncertain and depends on the state of the economy. A year from now the economy will either be in a recession, a state of “normal” growth, or a boom with probabilities of 25%, 40%, and 35% respectively. After analyzing ABC you determine that the price of ABC a year from now in these various states of the economy will be:
+
+```{r, include=TRUE}
+state <- c('Recession','Normal Growth','Boom')
+price <- c('$74','$115','$140')
+kable(tibble(state,price), 
+      col.names = c('State of the Economy',"Price of ABC")) %>%
+  kable_styling(bootstrap_options = 'hover')
+```
+
+**What is the expected return over the next year to your investment in ABC? What is the standard deviation of that return?**
+
+***
+
+Expected Return $=\frac{E[d_{t+1}+E[P_+{t+1}]]}{P_t}-1$
+
+\[E[r_{t+1}]=\frac{100\times3+(0.25*75+0.40*115+0.35*140)}{100}-1\]
+
+```{r}
+e_return = (3 + 0.25*75+0.40*115+0.35*140)/100-1
+```
+
+The expected return over the next year to this investment is <b>`r paste(e_return*100, "%", sep = "")`</b>
+
+Standard deviation of the expected return:
+
+\[\sigma^2=E[(r_{t+1}-E[r_{t+1}])^2]\]
+\[\quad= (\frac{3+0.25*75}{100}-1)^2+(\frac{3+0.40*115}{100}-1)^2+(\frac{3+00.35*140}{100}-1)^2\]
+
+```{r}
+sig2 <- 0.25*((3+0.25*75)/(100)-1)**2 + 0.40*((3+0.40*115)/(100)-1)**2 +0.35*((3+00.35*140)/(100)-1)**2
+sig = sqrt(sig2)
+```
+
+SD = <b>`r sig*100`%</b>
+
+***
+
+# Problem 2
+
+You form a portfolio from a riskless asset (T-bills) and Stocks 1 and 2. Here are the expected returns and standard deviations of these assets:
+
+```{r, include=TRUE}
+ass <- c('Stock 1','Stock 2','T-Bills')
+er <- c('13%','17%','5%')
+sd <- c('20%','50%','0')
+tab <- tibble(ass, er, sd)
+kable(tab, col.names = c("Asset","Expected Return","Standard Deviation")) %>%
+  kable_styling(bootstrap_options = 'hover')
+```
+
+
+**The correlation between stocks 1 and 2 is -0.2. Consider a portfolio that invests 50% in Stock 1, 30% in Stock 2, and 20% in T-bills.**
+
+***
+
+* What is the expected return of this portfolio?
+
+\[E[r_{t+1}]=0.05*0.2+0.5*0.13+0.3*0.17\]
+\[E[r_{t+1}]=12.6\%\]
+
+* What is the standard deviation of this portfolio?
+
+\[\sigma = \sqrt{0.5^2*0.2^2+0.3^2*0.5^2+0.2^2*0+(2*0.5*0.3(-0.2)0.2*0.5)}\]
+\[SD = 16.28\%\]
+
+* How much does the minimum variance portfolio of risky assets (MVP) invest in Stock 1?
+
+\[w_1(MVP) = \frac{\sigma_2^2-\sigma_{1,2}}{\sigma_1^2+\sigma_2^2-2\sigma_{1,2}}\]
+
+```{r}
+get_MVP <- function(var1, var2, corr){
+  cov = corr*sqrt(var1)*sqrt(var2)
+  (var2-cov)/(var1 + var2 - 2*cov)
+}
+w1 <- get_MVP(0.20^2, 0.5^2, -.02)
+```
+
+  The MVP of risky assets would invest `r round(w1*100, digits = 1)`% in Stock 1.
+
+***
+
+# Problem 3
+The Triad family of mutual funds allows investors to split their money between several portfolios managed by Triad (none of the portfolios can be shorted).
+
+* Portfolio A consists entirely of risk-free securities, and has a certain return of 4%. 
+
+* Portfolio B has an expected return of 19% and a standard deviation of 25%.
+
+* Portfolio C has an expected return of 10% and a standard deviation of 15%.
+
+Your client is leaning towards investing his money entirely in portfolio C, since he is unwilling to take the higher risk associated with portfolio B, but wants a higher return than offered by portfolio A.
+
+  (a) In your role as a Triad investment advisor, you suggest to him an alternative portfolio (consisting of a combination of A and B) that has the same standard deviation as portfolio C but a higher expected return. Assume he has $200,000 to invest.
+  * **How much should he invest in A and how much in B?**
+
+***
+
+  Targets: $E[r]>0.1$ and $SD \leq 0.15$
+  
+  Calculate the weights of a portfolio of A and B which has a standard deviation of 15%:
+  
+  \[0.15^2 = w_A^2*0 + w_B^2*0.25^2\]
+  \[w_A = 0.4\quad w_B = 0.6\]
+  
+  He should invest 40% in Portfolio A and 60% in Portfolio B
+
+***
+
+  * **What is his expected return in this case?**
+
+(Note that since you work for Triad you cannot recommend investing in a market index fund, since this is not sold by Triad!)
+  
+***
+
+```{r}
+er <- 0.4*0.04+0.6*0.19
+```
+
+  This case will have an expected return of **`r round(100*er, digits = 2)`%**
+
+***
+  
+  (b) Sketch a risk/return diagram to help explain to him why his combination of risk and return is improved by this option, and why his risk has not increased. Show all four portfolios on the diagram (the original three plus your suggestion).
+
+```{r, include = T}
+A <- c(0,0.04)
+B <- c(0.25,0.19)
+C <- c(0.15,0.10)
+my <- c(0.15, er)
+ggplot()+
+  geom_point(aes(A[1], A[2], color = 'Porfolio A'))+
+  geom_point(aes(B[1], B[2], color = 'Portfolio B'))+
+  geom_point(aes(C[1], C[2], color = 'Portfolio C'))+
+  geom_point(aes(my[1], my[2], color = 'Alternative Portfolio'), size = 2)+
+  geom_segment(aes(A[1], A[2], xend = B[1], yend =  B[2]), linetype = 'dashed', alpha = 0.3)+
+  labs(x = 'Standard Deviation',y ='Expected Return', title = 'Portfolio Risk/Return')+
+  theme_classic()+
+  theme(legend.title = element_blank(), legend.position = c(0.9, 0.3))
+```
+
+
+***
+  (c) Now assume that the correlation between portfolios B and C is 0. Compute the weights of the portfolio T formed with B and C that has the highest Sharpe ratio. Find also the portfolio G formed with B and C that has the smallest variance.
+
+Portfolio T:
+
+```{r}
+(0.19-0.04)/(0.25^2)
+(0.10-0.04)/(0.15^2)
+
+2.5/(2.5+2.667)
+2.667/(2.5+2.667)
+```
+
+Find tangency portfolio:
+\[\frac{MB}{MC} = \frac{E[\tilde r_i]-r_f}{w_B\sigma_{p,B}+w_C\sigma_{p,C}}= C\]
+\[w_B*0.25^2+w_A*0=0.19-0.04\]
+\[w_A*0+w_A*0.15^2 = 0.10-0.04\]
+\[w_B = 2.5\quad w_A = 2.667\]
+
+The portfolio (Portfolio T) with the highest sharp ratio is composed of **48.38% Portfolio B and 51.62% Portfolio C.**
+
+***
+
+Minimal Variance:
+
+\[\min_{w_B} w_B^2*0.25^2+(1-w_B)^2*0.15^2\]
+
+First Order Condition:
+
+\[0.125w_B-2(1-w_B)*0.15^2 = 0\]
+\[0.17w_B= 0.045\quad\Rightarrow\quad w_B = 0.2647\]
+
+Portfolio G, with minimal variance, is composed of **26.47% Portfolio B and 73.53% Portfolio C.**
+
+***
+
 
 
