@@ -1,7 +1,7 @@
 ---
 title: "Homework 1"
 author: "Brandon Powell"
-date: "4/12/2021"
+date: "4/16/2021"
 output: 
   html_document:
     toc: true 
@@ -148,11 +148,11 @@ B <- c(0.25,0.19)
 C <- c(0.15,0.10)
 my <- c(0.15, er)
 ggplot()+
-  geom_point(aes(A[1], A[2], color = 'Porfolio A'))+
-  geom_point(aes(B[1], B[2], color = 'Portfolio B'))+
-  geom_point(aes(C[1], C[2], color = 'Portfolio C'))+
-  geom_point(aes(my[1], my[2], color = 'Alternative Portfolio'), size = 2)+
-  geom_segment(aes(A[1], A[2], xend = B[1], yend =  B[2]), linetype = 'dashed', alpha = 0.3)+
+  geom_point(aes(A[1], A[2], color = 'Porfolio A'), size = 2.5)+
+  geom_point(aes(B[1], B[2], color = 'Portfolio B'), size = 2.5)+
+  geom_point(aes(C[1], C[2], color = 'Portfolio C'),size = 2.5)+
+  geom_point(aes(my[1], my[2], color = 'Alternative Portfolio'), size = 2.5)+
+  geom_segment(aes(A[1], A[2], xend = B[1], yend =  B[2]),linetype = 'dashed', alpha = 0.3)+
   labs(x = 'Standard Deviation',y ='Expected Return', title = 'Portfolio Risk/Return')+
   theme_classic()+
   theme(legend.title = element_blank(), legend.position = c(0.9, 0.3))
