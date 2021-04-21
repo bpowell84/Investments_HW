@@ -1,0 +1,296 @@
+---
+title: "Homework 2"
+author: "Brandon Powell"
+date: "4/21/2021"
+output: 
+  html_document:
+    toc: true 
+    toc_float: true
+    theme: yeti
+    highlight: haddock
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(kableExtra)
+library(readxl)
+library(Hmisc)
+```
+
+```{r load data}
+colt <- c('date','numeric','numeric','numeric','numeric','numeric')
+# Load Data into tibbles
+p1_dat <- read_xls('ps2_prob1_data.xls', skip = 4, col_types = colt)
+p2_dat <- read_xls('ps2_prob2_data.xls', skip = 2)
+```
+
+# Problem 1
+
+For this question you will need to use the returns data contained in the Excel spreadsheet ps2_prob1_data.xls. In this file, the first column contains the date. Subsequent columns contain the returns to the $a$) Value Weighted (VW) index of exchange listed stocks, $b$) IBM, $c$) USX, and $d$) GM common stocks. Column 6 contains the return on the one month T-Bill. In all cases, the return is the simple return (one month) over the period from the previous date up to the date in column 1. (Note: the return for the first row (date `30JAN1926`) is from 12/31/25 to 1/30/26.) In all cases, the returns properly account for dividends, splits and stock dividends.
+
+  **(a) Find the average returns on the VW Index, the T-Bill and each of the three stocks over the entire period from the beginning of 1926 through the end of 1999.**
+  
+```{r 1a}
+# Function to convert values into percents
+as_perc <- function(num){
+  paste(round(num*100 , digits = 2), '%')
+}
+# Get asset subset of data
+assets <- p1_dat[names(p1_dat) != 'Date']
+# Calculate mean for each column
+avg_returns <- sapply(assets, mean)
+
+# Create Table
+kable(sapply(avg_returns, as_perc), col.names = c('Average Return')) %>%
+  kable_styling(bootstrap_options = 'hover')
+
+```
+
+
+  
+  **(b) Find the variance of each of these returns over the entire period.**
+  
+```{r 1b}
+# Create Variance Table using sapply to get variances
+kable(sapply(assets, var), col.names = c('Variance')) %>%
+  kable_styling(bootstrap_options = 'hover')
+```
+
+  
+  **(c) Calculate the covariance between the return on IBM and the return on USX. Calculate the covariance between the return on USX and the return on GM. Calculate the covariance between the return on IBM and the return on GM.**
+  
+```{r 1c}
+# Get covariances
+covs <- c(
+  var(assets)['IBM','USX'],
+  var(assets)['USX','GM'],
+  var(assets)['IBM','GM'])
+names(covs) <- c('IBM + USX','USX + GM','IBM + GM')
+# Create Table
+kable(covs, col.names = 'Covariance') %>%
+  kable_styling(bootstrap_options = 'hover')
+```
+
+  
+  **(d) Consider the following two portfolios:**
+
+* Portfolio A had 60% invested in IBM, 20% in USX and 20% in GM at the beginning of each month
+
+* Portfolio B had 60% invested in USX, 20% in GM and 20% in IBM at the beginning of each month.
+
+    **(i) Using just the average returns and variances of the three stocks, plus the covariances between the stocks (calculated in parts (a), (b) and (c)), calculate the average returns and variances of these two portfolios, and the covariance between the two portfolios.**
+
+```{r 1di}
+# Weights (sorted by index in data)
+Aw <- c(0.6, 0.2,0.2)
+Bw <- c(0.2,0.6,0.2)
+
+# Get averafge returns for each portfolio
+A_returns <- sum(Aw*avg_returns[2:4])
+B_returns <- sum(Bw*avg_returns[2:4])
+
+# Function to get Portfolio Variances
+get_pvar <- function(w){
+  sum((w**2)*sapply(assets[2:4], var)) + 
+    2*w[1]*w[2]*covs[1] +
+    2*w[2]*w[3]*covs[2] +
+    2*w[3]*w[1]*covs[3]
+}
+# Call function on weights
+A_var <- get_pvar(Aw)
+B_var <- get_pvar(Bw)
+
+# Calculate covariance of portfolios
+port_assets <- assets[2:4]
+pcov <- numeric(1)
+# Sum over each pairing of weights and variables
+for (i in 1:3){
+  for (j in 1:3){
+    pcov = pcov + Aw[i]*Bw[j]*var(port_assets)[i,j]
+  }
+}
+# Create table
+myt <- tibble(c('Portfolio A', 'Portfolio B'), 
+             sapply(c(A_returns, B_returns), as_perc),
+             c(A_var, B_var))
+kable(myt, col.names = c('','Average Return', 'Portfolio Variance')) %>%
+  kable_styling(bootstrap_options = 'hover')
+```
+The covariance of these two portfolios is `r pcov`
+  
+  **(ii) Now on a spreadsheet calculate the realized returns of each the portfolios for each month. Using these realized returns calculate the portfolio average returns, variances and the covariance directly, confirming your answers from above.**
+    
+```{r 1dii}
+# Create new tibble with calculated portfolio returns
+port_dat <- p1_dat %>%
+  mutate(PortA = 0.6*IBM + 0.2*USX + 0.2*GM,
+         PortB = 0.2*IBM + 0.6*USX + 0.2*GM)
+
+# Calculate Average returns for portfolios
+pavg_returns <- sapply(port_dat[7:8], mean)
+
+# Calculate Variances
+pvars <- sapply(port_dat[7:8], var)
+
+# Calculate Covariance
+pcov <- var(port_dat[7:8])['PortA','PortB']
+
+# Create Table of Values
+myt <- tibble(c('Portfolio A','Porfolio B'),
+              sapply(pavg_returns, as_perc),
+              pvars)
+kable(myt, col.names = c('','Average Return','Portfolio Variance'), 
+      caption = 'Calculated from realized returns') %>%
+  kable_styling(bootstrap_options = 'hover')
+```
+
+The directly calculated covariance of these two portfolios is **`r pcov`**.
+
+These values confirm the answers from above.
+
+***
+
+# Problem 2
+
+The file ps2 prob2 data.xls contains the monthly returns on
+
+* A Salomon Brothers portfolio of non-US bonds (supplied by Ibbotson Associates).
+
+* The Morgan Stanley Capital International (MSCI) EAFE (Europe, Asia, and the Far East) index of world stock market performance.
+
+* The Value-Weighted portfolio of US Common Stocks
+
+* A portfolio of 100 US Corporate Bonds, from Ibbotson Associates
+
+* The Money Market rate.
+
+These data series all start in January of 1985 and run through the end of 1992.
+
+
+  1. For the period 1/1/1985 through 12/31/1992, calculate
+  
+  * The average excess return (i.e. the returns above the money market return) for each of the first four “assets”.
+  
+```{r 21}
+# Create tibble of excess returns
+excess <- p2_dat[2:6]
+names(excess) = c('SB','MSCI','CRSP','Bonds','MM') # Rename columns for ease of use
+
+excess <- excess %>%
+  # Subtract MM from each asset column
+  mutate(across(SB:Bonds, function(x) x - MM)) %>%
+  select(-MM) # Drop money market column
+# Calculate average excess returns from means
+avg_returns <- sapply(excess[1:length(excess)], mean)
+
+# Create Table
+kable(sapply(avg_returns, as_perc), col.names = 'Average Return') %>%
+  kable_styling(bootstrap_options = 'hover')
+```
+
+  
+  * Calculate the standard deviation for each of these excess returns.
+  
+```{r}
+# Calculate standard devs for each return
+standevs <- sapply(excess, sd)
+# Create Table
+kable(sapply(standevs, as_perc), col.names = c('Standard Deviation')) %>%
+  kable_styling(bootstrap_options = 'hover')
+```
+
+
+  * Calculate the correlation matrix.
+
+```{r}
+# use corrplot to display correlation matrix
+resp<- excess %>%
+  as.matrix()%>%
+  Hmisc::rcorr() # calculate correlations
+
+corrplot::corrplot(resp$r, type = 'upper', method = 'color',addCoef.col = "black", 
+                   diag = FALSE)
+```
+
+
+  2. Using the values calculated above (we will do all the calculation in excess returns; adding or subtracting a constant doesn’t impact our calculations, as it is just a “vertical shift” in our risk-reward diagrams), and using the spreadsheet MVE 4Assets.xls (you will need to change the inputs),
+
+  * Calculate the weights of each of the four assets in the mean-variance efficient portfolio (remember, the “excess risk-free rate” here will be zero)
+  
+```{r}
+# Weights Calculated with `MVE_4Assets.xls`
+MVE <- c(0.1401, 0.0447, 0.0176, 0.7976)
+names(MVE) <- c('SB', 'MSCI','CRSP','Bonds')
+kable(sapply(MVE, as_perc), col.names = 'Weight for MVE Portfolio',
+      caption = 'Calculated Using MVE_4Assets.xls') %>%
+  kable_styling(bootstrap_options = 'hover')
+```
+
+  
+  * Plot the ex-post minimum-variance frontier for this set of assets. Please include each of the four assets on the plot.
+  
+```{r}
+# Calculate return and deviation for various weight combinations
+
+# Initialize vectors to store output
+sds <- numeric(11**4)
+ers <- sds
+maxw <- sds
+index = 1
+# Iterate over approx 15,000 combinations of weights to create different portfolios
+for (i in 0:10){
+  for (j in 0:10){
+    for (k in 0:10){
+      for (l in 0:10){
+        weights <- c(i,j,k,l)
+        if (sum(weights)==0){
+          weights = c(1,1,1,1)
+        }
+        weights <- weights/sum(weights)
+        ers[index] = sum(sapply(excess*weights, mean)) # expected return
+        sds[index] = sqrt(sum(sapply(excess, var)*weights**2)) # standard deviation
+        
+        # Find largest asset share
+        maxnames = names(excess)[weights == max(weights)]
+        # Check if multiple assets have equally large shares
+        if (length(maxnames) > 1){
+          maxname <- 'Multiple Assets'
+        } else{
+          maxname = maxnames
+        }
+        maxw[index] = maxname
+        
+        index = index +1
+      }
+    }
+  }
+}
+```
+
+```{r}
+portset <- tibble(sds,ers,maxw)
+miner <- numeric(length(portset$ers))
+minsd <- miner
+for (i in 1:length(portset$ers)){
+  level = sort(portset$ers)[i]
+  sub <- portset %>%
+    filter(ers > level-0.0001 & ers < level +0.0001)
+  miner[i] = level
+  minsd[i] = min(sub$sds)
+}
+
+# Generate plot of MV frontier
+ggplot(portset, aes(x = sds, y = ers))+
+  # Each point represents a different portfolio
+  geom_point(aes(color = maxw),size = 0.5, alpha = 0.25)+
+  geom_path(aes(minsd, miner), size = 1, alpha = 0.3)+
+  theme_minimal()+
+  labs(title = 'Minimum Variance Frontier', 
+       x = 'Standard Deviation', 
+       y = 'Expected Return', 
+       color = 'Largest Share of Porfolio')+
+  theme(legend.position = c(0.85,0.55))+
+  guides(colour = guide_legend(override.aes = list(size=3, alpha = 1)))
+```
+
