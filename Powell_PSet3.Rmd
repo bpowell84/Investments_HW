@@ -1,0 +1,183 @@
+---
+title: "Homework 3"
+author: "Brandon Powell"
+date: "5/5/2021"
+output: 
+  html_document:
+    toc: true 
+    toc_float: true
+    theme: yeti
+    highlight: haddock
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(kableExtra)
+library(readxl)
+```
+
+
+# Problem 1
+
+## (a)
+
+\[\sigma_P^2 = w_1^2\sigma_1^2+ w_2^2\sigma_2^2 +2w_1w_2\sigma_{1,2}\]
+\[= 0.7^2*0.18+0.3^2*0.09^2+2*0.7*0.3*0.04\]
+\[\bf{\sigma_P^2 = 0.1057}\]
+
+## (b)
+
+CAPM formula for $\beta$: $\beta_{i,m} = \frac{cov(r_i, r_m)}{var(r_m)}$
+
+\[\beta_{1,M} = \frac{0.055}{0.04} = 1.375\]
+\[\beta_{2,M} = \frac{0.038}{0.04} = 0.95\]
+
+\[\sigma_{P,M} = 0.7\sigma_{1,M} + 0.3\sigma_{2,M} = 0.0499\]
+\[\beta_{P,M} = \frac{0.0499}{0.04} = 1.2475\]
+
+## (c)
+
+\[1: \quad R^2 = \frac{\sigma^2_{1,M}}{\sigma_{M}^2\sigma^2_1} = 0.4201389\]
+\[2: \quad R^2 = \frac{\sigma^2_{2,M}}{\sigma_{M}^2\sigma^2_2} = 0.4011111\]
+\[P: \quad R^2 = \frac{\sigma^2_{P,M}}{\sigma_{M}^2\sigma^2_P} = 0.5889333\]
+
+***
+
+# Problem 2
+
+## (a)
+
+\[E[r_{GM}] = 4 + 1.1(6) = 10.6\%\]
+\[E[r_{Mic}] = 4 + 0.8(6) = 8.8\%\]
+
+\[E[r_P] = 0.3*4+0.35*10.6+0.35*8.8\]
+
+The expected return on this portfolio is 7.99%. 
+
+## (b)
+
+Solve for variances using $R^2$ and $\beta$ formulas:
+
+\[\beta_i = \frac{\sigma_{i,M}}{\sigma_M^2}\]
+\[R^2 = \frac{\sigma_{i,M}^2}{\sigma_M^2\sigma_i^2}\]
+
+GM:
+\[1.1 = \frac{\sigma_{GM,M}}{0.2^2}\quad \sigma_{GM,M} = 0.044\]
+\[0.4 = \frac{0.044^2}{0.2^2\sigma_{GM}^2}\quad \sigma_{GM}^2 = 0.121\]
+
+Microsoft:
+\[0.8 = \frac{\sigma_{Mic,M}}{0.2^2}\quad \sigma_{Mic,M} = 0.032\]
+\[0.3 = \frac{0.032^2}{0.2^2\sigma_{Mic}^2}\quad \sigma_{Mic}^2 = 0.0853\]
+
+Portfolio:
+\[\sigma_P^2 = 0.35^2*0.121+0.35^2*0.0853+2*0.35^2*0.3*0.121^{0.5}*0.0853^{0.5}\]
+\[\sigma_P^2 = 0.03273889\quad \sigma_P =0.181 \]
+
+## (c)
+
+GM weight for MVE portfolio:
+
+\[w_{GM}^{MVE} = \frac{E(r_{GM}^e)\sigma^2_{Mic}-E(r_{Mic}^e) cov(r_{GM},r_{Mic}) }{E(r_{GM}^e)\sigma^2_{Mic} + E(r_{Mic}^e)\sigma^2_{GM} - [E(r_{GM}^e)+E(r_{Mic}^e)]cov(r_{GM}, r_{Mic})}\]
+
+\[w_{GM}^{MVE} = \frac{(6.6)*0.0853-(4.8)*0.3*0.121^{0.5}*0.0853^{0.5}}{(6.6)*0.0853 + (4.8)*0.121 - (6.6+4.8)*0.3*0.121^{0.5}*0.0853^{0.5}} = 0.5232571\]
+\[w_{Mic}^{MVE} = 0.5232571\]
+
+Create a portfolio on the CML with the same variance as the current portfolio:
+
+\[0.0327 = (1-w_{riskless})^2(0.5232571^2*0.121+0.4767429^2*0.0853+ 2*0.5232571 *0.4767429*0.3*0.121^{0.5}*0.0853^{0.5})\]
+\[w_{riskless} = 0.3047132 \ quad w_{GM} = 0.3638138 \quad w_{Mic} = 0.331473\]
+
+
+The expected return on this new portfolio is 7.992241%
+
+This is a very slightly higher expected return though is nearly an identical portfolio practically to the one before with a slightly larger share in the riskless asset.
+
+***
+
+# Problem 3
+
+## (a)
+
+**FALSE**. APT also assumes that investors care about different risk factors that can be used to track and assess different/comparable assets.
+
+## (b)
+
+**TRUE.** CAPM evaluates the risk of an given stock based off of its $\beta$ value which weights its reaction to the underlying risks and payoffs of the market - there are no other terms to account for outside risk and payoff. 
+
+## (c)
+
+**FALSE.** This doesn't necessarily mean that APT is *true* but rather informs us that these factors can help explain up to 80% of the variation we see in returns.
+
+## (d)
+
+**FALSE.** While diversification can greatly reduce the variance of your portfolio, the market itslef carries some amount of inherent risk/variance that cannot be diversified away. 
+
+***
+
+# Problem 4
+
+```{r}
+# load in data
+returns <- read_xls('ps3_problem4.xls')
+```
+
+## (a) 
+
+```{r}
+# portfolio weights
+w1 <- numeric(2) + 1
+w2 <- numeric(3) + 1
+w3 <- numeric(4) + 1
+w4 <- numeric(13) + 1
+# Normalize
+w <- list(w1,w2,w3,w4) %>% lapply(function(x) x/sum(x))
+# add portfolios 
+returns <- returns %>%
+  mutate(p1 = rowSums(tibble(GM,IBM) * w[[1]]),
+         p2 = rowSums(tibble(GM,IBM, BUSCH) * w[[2]]),
+         p3 = rowSums(tibble(GM, TOYOTA, IBM, BUSCH) * w[[3]]),
+         p4 = rowSums(tibble(TOYOTA,GM,BMW,FORD,CHRYSLER,APPLE,IBM,COMPAQ,HP,BUSCH,HEINEKEN,KIRIN,MOLSON) * w[[4]]))
+```
+
+* Calculate the average monthly return and the return variance on these four port- folios (you do not need to use any complicated formulas here, just apply Excel functions AVERAGE and VAR to the portfolio returns).
+
+```{r}
+# Select out portfolios
+folios <- returns %>%
+  select(p1,p2,p3,p4)
+# Calc mean and variance
+means <- sapply(folios, mean)
+vars <- sapply(folios, var)
+# create table
+df <- tibble(c(1,2,3,4), sapply(means, function(x) paste(round(x, digits = 2), '%')), vars)
+kable(df, col.names = c('Portfolio','Average Monthly Return', 'Variance')) %>%
+  kable_styling(bootstrap_options = 'hover')
+```
+
+* For each of these four portfolios, estimate the beta and R2 of the portfolio versus the “World Market” portfolio. (If you are working in Excel, the functions SLOPE and LINEST will both estimate the beta. LINEST provides other regression statistics as well.)
+
+```{r}
+# Create linear model for each portfolio
+mod1 <- lm(p1 ~ `Market: World`, data = returns) %>% summary()
+mod2 <- lm(p2 ~ `Market: World`, data = returns) %>% summary()
+mod3 <- lm(p3 ~ `Market: World`, data = returns) %>% summary()
+mod4 <- lm(p4 ~ `Market: World`, data = returns) %>% summary()
+mods <- list(mod1, mod2, mod3, mod4)
+# calculate betas and rsquareds
+betas <- sapply(mods, function(x) coef(x)[2])
+rs <- sapply(mods, function(x) x$r.squared)
+#create table
+kable(tibble(c(1,2,3,4), betas, rs), col.names = c('Portfolio', 'Beta','R-squared'), 
+      caption = 'Returns against World Market') %>%
+  kable_styling(bootstrap_options = 'hover')
+```
+
+
+## (b)
+
+While variance, on the whole, seems to decrease as we add assets to the portfolio, portfolio 4 seems to have a slightly larger variance than portfolio 3. Similarly, the increase in assets to the portfolios seems to increase beta though portfolio 2 has a smaller beta than portfolio 1.
+
+## (c)
+
+The results in part a seem to suggest that average returns see increase alongside a decrease in risk as we add assets to the portfolio. This is not a strict relationship however as the large increase in average returns from portfolio 3 to 4 is paired with a slight increase in risk. 

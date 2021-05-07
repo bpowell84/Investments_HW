@@ -1,7 +1,7 @@
 ---
 title: "Homework 2"
 author: "Brandon Powell"
-date: "4/21/2021"
+date: "4/22/2021"
 output: 
   html_document:
     toc: true 
@@ -19,9 +19,8 @@ library(Hmisc)
 ```
 
 ```{r load data}
-colt <- c('date','numeric','numeric','numeric','numeric','numeric')
 # Load Data into tibbles
-p1_dat <- read_xls('ps2_prob1_data.xls', skip = 4, col_types = colt)
+p1_dat <- read_xls('ps2_prob1_data.xls', skip = 4)
 p2_dat <- read_xls('ps2_prob2_data.xls', skip = 2)
 ```
 
@@ -118,6 +117,8 @@ kable(myt, col.names = c('','Average Return', 'Portfolio Variance')) %>%
   kable_styling(bootstrap_options = 'hover')
 ```
 The covariance of these two portfolios is `r pcov`
+  
+***
   
   **(ii) Now on a spreadsheet calculate the realized returns of each the portfolios for each month. Using these realized returns calculate the portfolio average returns, variances and the covariance directly, confirming your answers from above.**
     
@@ -227,7 +228,6 @@ kable(sapply(MVE, as_perc), col.names = 'Weight for MVE Portfolio',
   kable_styling(bootstrap_options = 'hover')
 ```
 
-  
   * Plot the ex-post minimum-variance frontier for this set of assets. Please include each of the four assets on the plot.
   
 ```{r}
@@ -269,9 +269,15 @@ for (i in 0:10){
 ```
 
 ```{r}
+# Create tibble of portfolio data
 portset <- tibble(sds,ers,maxw)
+
+# Find points on frontier line
+
+# Init vars
 miner <- numeric(length(portset$ers))
 minsd <- miner
+# Iterate over return levels to find minimum sd
 for (i in 1:length(portset$ers)){
   level = sort(portset$ers)[i]
   sub <- portset %>%

@@ -1,0 +1,200 @@
+---
+title: "Powell Midterm"
+author: "Brandon Powell"
+date: "5/4/2021"
+output: 
+  html_document:
+    toc: true 
+    toc_float: true
+    theme: yeti
+    highlight: haddock
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(kableExtra)
+```
+
+
+# Part 1: Multiple Choice
+
+## Problem 1
+
+**(b) has an expected return equal to the risk-free rate**
+
+In CAPM, beta represents the amount of risk of an asset, i, ($\frac{cov(\tilde r_i, \tilde r_m)}{var(\tilde r_m)}$) as paid off by the excess returns of the market. This means that a zero-beta portfolio will have the same returns as the risk-free rate, however, the portfolio may be subject to idiosyncratic risks unrelated to market risk.
+
+## Problem 2
+
+**(e) all A, B, and D**
+
+Growth stocks have a large expected growth in the future (larger than the market growth with higher book equity) and will therefore have a higher price reflecting that prospect (high price to earning ratio). In CAPM, this higher return comes from excess market returns as weighted by beta lending a larger risk to the stock. 
+
+## Problem 3
+
+**(b) overpriced.**
+
+CAPM expected return: $E[r]= r_f + \beta(E[r_m]-r_f)= 4+1.2(10-4)= 11.2\%$
+
+## Problem 4
+
+**(d) all of the above.**
+
+The MVP is somewhat explicitly found by using each asset's covariance as a marginal trade-off of variance; minimizing variance then results in equal covariance [with the MVP] across all assets. This results in lower variance than any individual asset. The tangency portfolio is found on the very same minimum variance frontier as the MVP while optimizing returns enabling its returns to always be higher or the same as the MVP.
+
+## Problem 5
+
+**(e) both A and B are correct**
+
+APT presents asset prices as functions of their exposure to different common factors; if two securities have similar exposures, they will have similar expected returns by cause of the ability to use arbitrage and profit from price disparities.
+
+## Problem 6
+
+**(a) Portfolio I cannot lie on the efficient frontier**
+
+Portfolio IV has a higher expected return than portfolio I while maintaining a smaller standard deviation ensuring that Portfolio I can't be on the efficient frontier.
+
+## Problem 7
+
+**(b) About $28 thousand**
+
+\[10000\times(1.021)^{50} = 28267.48\]
+
+## Problem 8
+
+* When combining a riskless asset with a risky portfolio, the resulting portfolio has the same variance (as the original risky asset) since the riskless asset has no variance and no covariance with all assets in the portfolio. This is why the investment opportunity set is a straight line.
+
+**FALSE**. The variance in this case may not necessarily be the same as the inclusion of the riskless asset in the resulting portfolio will actually decrease variance given a constant rate of return (portfolio variance is affected by the weight on each component asset).
+
+* The CAPM states that expected returns depend on an asset’s loading on market risk. Thus, any asset with a standard deviation greater than the standard deviation of the market portfolio must have an expected return greater than the market portfolio, since it is riskier than the market.
+
+**FALSE.** The CAPM evaluates returns based on the covariance of a given asset with the market. It is possible for an asset to have high standard deviation due to more idiosyncratic risk without necessarily having a higher expected return under CAPM. 
+
+* High beta stocks tend to also have high alphas because these are more risky for investors.
+
+**FALSE.** In CAPM, alpha represents the difference in evaluation of returns between price data and CAPM prediction; it doesn't reflect the risk of a stock.
+
+* Everyone should buy a house or an apartment as soon as having enough wealth to finance its down-payment.
+
+**FALSE.** The decision to buy a house or an apartment should take into account the relative costs of owning and renting as variables subject to temporal change via the housing market; there may be times where purchasing a house has significantly steeper costs in the long-run due to market conditions.
+
+* The CAPM predicts that more risk averse individuals should invest in less risky stocks than less risk averse individuals.
+
+**FALSE.** The separation principle within CAPM deals more with the *share* of one's portfolio in risky stocks as a product of risk aversion rather than the *risk-level* of stocks.
+
+* One should avoid investing in stocks with high idiosyncratic risk because you don’t get compensated for it.
+
+**FALSE.** If that high idiosyncratic risk is uncorrelated with the other asset risks in your portfolio, investing in such stocks can given you diversification benefits.
+
+# Part 2: Quantitative Questions
+
+## Problem 9
+
+### (a)
+
+If CAPM is true, we should estimate $\alpha_i = 0$
+
+### (b)
+
+I will use the regression equation to calculate the variance of stock i.
+
+\[var(r_i) = var(\alpha_i+\beta_i[r_{m}-r_f]+\epsilon_i-r_f)=var(2r_m+\epsilon)= 4*0.02+0.05\]
+
+Volatility of $r_i$: $\sigma_{r_i} = 0.36$
+
+## Problem 10
+
+
+\[E[r_A] = 4+\beta_A(E[r_m]-4)=10\]
+\[E[r_b] = 4+\beta_B(E[r_m]-4)=13 \]
+
+\[\frac{\beta_B(E[r_m]-4)}{\beta_A(E[r_m]-4)} = 9/6\]
+\[\frac{\beta_B}{\beta_A} = 1.5\]
+
+The beta of Stock B is 1.5 times larger than that of Stock A assuming that CAPM holds.
+
+## Problem 11
+
+### (a)
+
+Let $w_1$, $w_2$, and $w_3$ be the weights for the three assets respectively in a portfolio combining them.
+
+To find the risk-free rate, I will create a portfolio which has a loading of zero on each factor and find it's expected return.
+
+Conditions (loading of 0 on each factor):
+
+\[w_3 = 1-w_1-w2\]
+\[F_1:\quad 2w_1+w_2-2(1-w_1-w_2)=0\]
+\[F_2: \quad 2w_1-2(1-w_1-w_2)= 0\]
+
+\[w_1 = (1-w_2)/2\]
+\[2(1-w_2)/2+w_2=2(1-(1-w_2)/2-w_2)\]
+\[1 = 2(1/2-w_2/2)\]
+\[w_1 = 0.5\quad w_2 = 0 \quad w_3 = 0.5\]
+
+\[r_f = 0.5*E[r_1]+0.5E[r_3] = \textbf{12%}\]
+
+### (b)
+
+PF1 conditions (loading of 1 on factor 1 and 0 on all others):
+
+\[2w_1 + w_2-2(1-w_1-w_2) = 1\]
+\[\quad 2w_1-2(1-w_1-w_2)= 0\]
+
+\[w_1 = (1-w_2)/2\]
+\[2(1-w_2)/2+w_2=1+2(1-(1-w_2)/2-w_2)\]
+\[1 = 1+2(1/2-w_2/2)\]
+
+Weights for the PF1:
+
+\[w_1 = 0\quad w_2 = 1\quad w_3 = 0\]
+
+### (c)
+
+\[E[r_{PF1}^e] = E[r_{PF1}]-r_f= 7-12\]
+
+The excess return of the PF1 is -5%
+
+## Problem 12
+
+### (a)
+
+First order condition for the tangency portfolio:
+
+\[\frac{E[r_j]-r_f}{\sigma_{j,p}}\]
+
+\[w_1*0.3^2 = 10-5\quad w_1 = 55.55556\]
+\[w_2*0.3^2 = 15-5\quad w_2 = 111.1111\]
+\[w_3*0.4^2 = 18-5\quad w_3 = 81.25\]
+
+```{r}
+mys <- c(55.55556, 111.1111, 81.25)
+mys <- mys/sum(mys)
+mys
+```
+
+Weights of the tangency portfolio:
+
+\[w_1 = 0.224 \quad w_2 = 0.448 \quad w_3 = 0.328\]
+
+### (b)
+
+\[E[r_T] = 0.224*0.10 + 0.448*0.15 + 0.328*0.18=0.14864\]
+\[\sigma_T = \sqrt{0.224^2*0.3^2 + 0.448^2*0.30^2 + 0.328^2*0.40^2} = 0.1994809\]
+
+Sharpe Ratio $=\frac{0.14864-0.05}{0.1994809} = 0.494$
+
+### (c)
+
+The Shape ratio of the tangency portfolio would increase; while this negative correlation would not affect the expected return of the tangency portfolio, it would effectively mitigate some of the variance in the portfolio. Looking at the Sharpe ratio, this change would increase it's value.
+
+# Part 3: Conceptual Questions
+
+## Problem 13
+
+We **can** say how large $w_A$ is relative to $w_B$. This is due to the fact that we can calculate a tangency portfolio composed of assets A and B while using the risk-free rate. Regardless of how risk-averse the client is, the tangency portfolio will be the optimal relative weights of A and B so as to maximize returns while minimizing variance. However, we **cannot** say how large $w_C$ is as the relative shares that the client invests in the risk-free asset compared to the optimal combination of A and B will depend on the risk aversion of the client.
+
+## Problem 14
+
+I would likely evaluate this strategy as somewhat incomplete as it seems to base its decision on the past success of these stocks rather than prospective future success. As it comes to recommendations for my friend, I would advise him first to consider further diversification of his portfolio as he could still target high expected return stocks while reaping diversification benefits and decreasing his risk. Furthermore, I would encourage him to consider other assets that perhaps have similar prospects for growth (high beta or growth stocks) as had Tesla and Apple at the beginning of their growth periods; I would try to convince my friend to make his investment choices more based in the capacity and likelihood for future growth rather than the past growth of individual stocks.
